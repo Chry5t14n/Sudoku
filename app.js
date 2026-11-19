@@ -112,6 +112,44 @@ function isValidMove(row, column, number) {
   return valid;
 }
 
+function enterNumber(number) {
+  if (!selectedCell) {
+    setStatus("Selecione uma casa vazia primeiro.", "error");
+    return;
+  }
+
+  const [row, column] = selectedCell.split("-").map(Number);
+  if (!isValidMove(row, column, number)) {
+    setStatus("Jogada inválida: o número já está na linha, coluna ou quadrante.", "error");
+    renderBoard();
+    return;
+  }
+
+  board[row][column] = number;
+  if (isWinningBoard()) {
+    renderBoard();
+    setStatus("Parabéns! Você completou o Sudoku!", "success");
+  } else {
+    setStatus("Jogada aplicada.");
+    renderBoard();
+  }
+}
+
+function clearSelectedCell() {
+  if (!selectedCell) {
+    setStatus("Selecione uma casa vazia primeiro.", "error");
+    return;
+  }
+  const [row, column] = selectedCell.split("-").map(Number);
+  if (fixedCells.has(selectedCell)) {
+    setStatus("Esta casa já está fixa.", "error");
+    return;
+  }
+  board[row][column] = 0;
+  setStatus("Casa limpa.");
+  renderBoard();
+}
+
 function renderBoard() {
   boardElement.replaceChildren();
 
@@ -165,42 +203,26 @@ function startGame(difficulty = difficultyElement.value) {
 numberPadElement.addEventListener("click", (event) => {
   const button = event.target.closest("[data-number]");
   if (!button) return;
-  if (!selectedCell) {
-    setStatus("Selecione uma casa vazia primeiro.", "error");
-    return;
-  }
-
-  const [row, column] = selectedCell.split("-").map(Number);
   const number = Number(button.dataset.number);
-  if (!isValidMove(row, column, number)) {
-    setStatus("Jogada inválida: o número já está na linha, coluna ou quadrante.", "error");
-    renderBoard();
-    return;
-  }
-
-  board[row][column] = number;
-  if (isWinningBoard()) {
-    renderBoard();
-    setStatus("Parabéns! Você completou o Sudoku!", "success");
-  } else {
-    setStatus("Jogada aplicada.");
-    renderBoard();
-  }
+  enterNumber(number);
 });
 
 clearElement.addEventListener("click", () => {
-  if (!selectedCell) {
-    setStatus("Selecione uma casa vazia primeiro.", "error");
-    return;
+  clearSelectedCell();
+});
+
+document.addEventListener("keydown", (event) => {
+  if (event.key >= "1" && event.key <= "9") {
+    event.preventDefault();
+    enterNumber(Number(event.key));
+  } else if (event.key === "Backspace" || event.key === "Delete") {
+    event.preventDefault();
+    clearSelectedCell();
+  } else if (event.key === "Escape") {
+    selectedCell = null;
+    setStatus("Seleção removida.");
+    renderBoard();
   }
-  const [row, column] = selectedCell.split("-").map(Number);
-  if (fixedCells.has(selectedCell)) {
-    setStatus("Esta casa já está fixa.", "error");
-    return;
-  }
-  board[row][column] = 0;
-  setStatus("Casa limpa.");
-  renderBoard();
 });
 
 difficultyElement.addEventListener("change", () => startGame());

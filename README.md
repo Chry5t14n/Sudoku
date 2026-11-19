@@ -32,6 +32,9 @@ python3 -m http.server 8000
 
 Depois abra `http://localhost:8000` no navegador.
 
+Clique em uma casa vazia e use as teclas `1` a `9` para preencher. Use
+`Backspace` ou `Delete` para limpar a casa e `Escape` para remover a seleção.
+
 ## Testes
 
 ```bash

@@ -1,6 +1,6 @@
 import unittest
 
-from sudoku import BOARD_SIZE, create_board
+from sudoku import BOARD_SIZE, create_board, is_valid_move
 
 
 class TestCreateBoard(unittest.TestCase):
@@ -17,6 +17,38 @@ class TestCreateBoard(unittest.TestCase):
 
         self.assertEqual(board[0][0], 5)
         self.assertEqual(board[1][0], 0)
+
+
+class TestIsValidMove(unittest.TestCase):
+    def test_accepts_number_without_conflicts(self):
+        board = create_board()
+
+        self.assertTrue(is_valid_move(board, 0, 0, 5))
+
+    def test_rejects_number_repeated_in_row(self):
+        board = create_board()
+        board[0][4] = 5
+
+        self.assertFalse(is_valid_move(board, 0, 0, 5))
+
+    def test_rejects_number_repeated_in_column(self):
+        board = create_board()
+        board[4][0] = 5
+
+        self.assertFalse(is_valid_move(board, 0, 0, 5))
+
+    def test_rejects_number_repeated_in_box(self):
+        board = create_board()
+        board[1][1] = 5
+
+        self.assertFalse(is_valid_move(board, 0, 0, 5))
+
+    def test_rejects_invalid_number_or_occupied_position(self):
+        board = create_board()
+        board[0][0] = 5
+
+        self.assertFalse(is_valid_move(board, 0, 1, 0))
+        self.assertFalse(is_valid_move(board, 0, 0, 5))
 
 
 if __name__ == "__main__":

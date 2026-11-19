@@ -12,6 +12,9 @@ python sudoku.py
 
 As casas vazias são representadas internamente por `0` e exibidas como `.`.
 
+A função `is_valid_move` valida números de `1` a `9` e impede conflitos na
+linha, coluna ou quadrante 3x3 da posição escolhida.
+
 ## Testes
 
 ```bash

@@ -1,6 +1,6 @@
 import unittest
 
-from sudoku import BOARD_SIZE, create_board, is_valid_move
+from sudoku import DIFFICULTIES, BOARD_SIZE, create_board, is_valid_move, load_board
 
 
 class TestCreateBoard(unittest.TestCase):
@@ -49,6 +49,32 @@ class TestIsValidMove(unittest.TestCase):
 
         self.assertFalse(is_valid_move(board, 0, 1, 0))
         self.assertFalse(is_valid_move(board, 0, 0, 5))
+
+
+class TestLoadBoard(unittest.TestCase):
+    def test_loads_a_9x9_board_for_each_difficulty(self):
+        for difficulty in DIFFICULTIES:
+            with self.subTest(difficulty=difficulty):
+                board = load_board(difficulty)
+
+                self.assertEqual(len(board), BOARD_SIZE)
+                self.assertTrue(all(len(row) == BOARD_SIZE for row in board))
+                self.assertTrue(
+                    all(0 <= value <= BOARD_SIZE for row in board for value in row)
+                )
+                self.assertTrue(any(value == 0 for row in board for value in row))
+
+    def test_returns_a_copy_that_can_be_changed_independently(self):
+        board = load_board("easy")
+        original_value = board[0][0]
+        board[0][0] = 0
+
+        self.assertNotEqual(board[0][0], load_board("easy")[0][0])
+        self.assertEqual(load_board("easy")[0][0], original_value)
+
+    def test_rejects_unknown_difficulty(self):
+        with self.assertRaises(ValueError):
+            load_board("expert")
 
 
 if __name__ == "__main__":

@@ -251,4 +251,4 @@ def play_game(board: list[list[int]], input_fn=input, output_fn=print) -> None:
 
 
 if __name__ == "__main__":
-    play_game(load_board("easy"))
+    play_game(generate_board("easy"))

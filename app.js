@@ -1,37 +1,7 @@
-const puzzles = {
-  easy: [
-    [5, 3, 0, 0, 7, 0, 0, 0, 0],
-    [6, 0, 0, 1, 9, 5, 0, 0, 0],
-    [0, 9, 8, 0, 0, 0, 0, 6, 0],
-    [8, 0, 0, 0, 6, 0, 0, 0, 3],
-    [4, 0, 0, 8, 0, 3, 0, 0, 1],
-    [7, 0, 0, 0, 2, 0, 0, 0, 6],
-    [0, 6, 0, 0, 0, 0, 2, 8, 0],
-    [0, 0, 0, 4, 1, 9, 0, 0, 5],
-    [0, 0, 0, 0, 8, 0, 0, 7, 9]
-  ],
-  medium: [
-    [5, 3, 0, 0, 7, 0, 0, 0, 0],
-    [6, 0, 0, 1, 0, 5, 0, 0, 0],
-    [0, 9, 8, 0, 0, 0, 0, 6, 0],
-    [8, 0, 0, 0, 6, 0, 0, 0, 0],
-    [4, 0, 0, 8, 0, 3, 0, 0, 1],
-    [7, 0, 0, 0, 2, 0, 0, 0, 0],
-    [0, 6, 0, 0, 0, 0, 2, 8, 0],
-    [0, 0, 0, 4, 1, 0, 0, 0, 5],
-    [0, 0, 0, 0, 8, 0, 0, 7, 9]
-  ],
-  hard: [
-    [5, 0, 0, 0, 7, 0, 0, 0, 0],
-    [6, 0, 0, 1, 0, 0, 0, 0, 0],
-    [0, 9, 0, 0, 0, 0, 0, 6, 0],
-    [8, 0, 0, 0, 6, 0, 0, 0, 0],
-    [4, 0, 0, 0, 0, 3, 0, 0, 1],
-    [7, 0, 0, 0, 2, 0, 0, 0, 0],
-    [0, 6, 0, 0, 0, 0, 2, 0, 0],
-    [0, 0, 0, 4, 0, 0, 0, 0, 5],
-    [0, 0, 0, 0, 8, 0, 0, 7, 9]
-  ]
+const cluesByDifficulty = {
+  easy: 40,
+  medium: 32,
+  hard: 24
 };
 
 const boardElement = document.querySelector("#board");
@@ -45,8 +15,45 @@ let board = [];
 let fixedCells = new Set();
 let selectedCell = null;
 
-function copyPuzzle(difficulty) {
-  return puzzles[difficulty].map((row) => [...row]);
+function shuffle(values) {
+  const shuffled = [...values];
+  for (let index = shuffled.length - 1; index > 0; index -= 1) {
+    const randomIndex = Math.floor(Math.random() * (index + 1));
+    [shuffled[index], shuffled[randomIndex]] = [shuffled[randomIndex], shuffled[index]];
+  }
+  return shuffled;
+}
+
+function generateBoard(difficulty) {
+  const generatedBoard = Array.from({ length: 9 }, () => Array(9).fill(0));
+
+  function fillBoard() {
+    for (let row = 0; row < 9; row += 1) {
+      for (let column = 0; column < 9; column += 1) {
+        if (generatedBoard[row][column]) continue;
+
+        for (const number of shuffle([1, 2, 3, 4, 5, 6, 7, 8, 9])) {
+          generatedBoard[row][column] = number;
+          if (!hasConflict(row, column, generatedBoard)) {
+            if (fillBoard()) return true;
+          }
+          generatedBoard[row][column] = 0;
+        }
+        return false;
+      }
+    }
+    return true;
+  }
+
+  fillBoard();
+  const positions = shuffle(
+    Array.from({ length: 81 }, (_, index) => [Math.floor(index / 9), index % 9])
+  );
+  const cellsToRemove = 81 - cluesByDifficulty[difficulty];
+  positions.slice(0, cellsToRemove).forEach(([row, column]) => {
+    generatedBoard[row][column] = 0;
+  });
+  return generatedBoard;
 }
 
 function setStatus(message, type = "") {
@@ -54,15 +61,15 @@ function setStatus(message, type = "") {
   statusElement.className = `status${type ? ` ${type}` : ""}`;
 }
 
-function hasConflict(row, column) {
-  const value = board[row][column];
+function hasConflict(row, column, targetBoard = board) {
+  const value = targetBoard[row][column];
   if (!value) return false;
 
   for (let currentColumn = 0; currentColumn < 9; currentColumn += 1) {
-    if (currentColumn !== column && board[row][currentColumn] === value) return true;
+    if (currentColumn !== column && targetBoard[row][currentColumn] === value) return true;
   }
   for (let currentRow = 0; currentRow < 9; currentRow += 1) {
-    if (currentRow !== row && board[currentRow][column] === value) return true;
+    if (currentRow !== row && targetBoard[currentRow][column] === value) return true;
   }
 
   const boxRow = Math.floor(row / 3) * 3;
@@ -70,7 +77,7 @@ function hasConflict(row, column) {
   for (let currentRow = boxRow; currentRow < boxRow + 3; currentRow += 1) {
     for (let currentColumn = boxColumn; currentColumn < boxColumn + 3; currentColumn += 1) {
       if ((currentRow !== row || currentColumn !== column)
-        && board[currentRow][currentColumn] === value) {
+        && targetBoard[currentRow][currentColumn] === value) {
         return true;
       }
     }
@@ -188,7 +195,7 @@ function renderBoard() {
 }
 
 function startGame(difficulty = difficultyElement.value) {
-  board = copyPuzzle(difficulty);
+  board = generateBoard(difficulty);
   fixedCells = new Set();
   board.forEach((row, rowIndex) => {
     row.forEach((value, columnIndex) => {

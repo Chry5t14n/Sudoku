@@ -22,6 +22,16 @@ linha, coluna ou quadrante 3x3 da posição escolhida.
 Use `load_board("easy")`, `load_board("medium")` ou `load_board("hard")` para
 carregar um tabuleiro pré-pronto. Cada chamada retorna uma cópia independente.
 
+## Interface no navegador
+
+Inicie um servidor local na raiz do projeto:
+
+```bash
+python3 -m http.server 8000
+```
+
+Depois abra `http://localhost:8000` no navegador.
+
 ## Testes
 
 ```bash

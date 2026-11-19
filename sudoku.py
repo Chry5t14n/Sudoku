@@ -1,11 +1,34 @@
 """Estrutura e exibição do tabuleiro de Sudoku."""
 
 BOARD_SIZE = 9
+BOX_SIZE = 3
 
 
 def create_board() -> list[list[int]]:
     """Cria um tabuleiro 9x9 vazio, representado por zeros."""
     return [[0 for _ in range(BOARD_SIZE)] for _ in range(BOARD_SIZE)]
+
+
+def is_valid_move(board: list[list[int]], row: int, column: int, number: int) -> bool:
+    """Verifica se um número pode ser inserido na posição indicada."""
+    if not 0 <= row < BOARD_SIZE or not 0 <= column < BOARD_SIZE:
+        return False
+    if not 1 <= number <= BOARD_SIZE or board[row][column] != 0:
+        return False
+
+    if number in board[row]:
+        return False
+
+    if any(board[current_row][column] == number for current_row in range(BOARD_SIZE)):
+        return False
+
+    box_start_row = (row // BOX_SIZE) * BOX_SIZE
+    box_start_column = (column // BOX_SIZE) * BOX_SIZE
+    return all(
+        board[current_row][current_column] != number
+        for current_row in range(box_start_row, box_start_row + BOX_SIZE)
+        for current_column in range(box_start_column, box_start_column + BOX_SIZE)
+    )
 
 
 def display_board(board: list[list[int]]) -> None:

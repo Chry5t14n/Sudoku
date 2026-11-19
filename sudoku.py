@@ -1,8 +1,15 @@
 """Estrutura e exibição do tabuleiro de Sudoku."""
 
+from random import Random
+
 BOARD_SIZE = 9
 BOX_SIZE = 3
 DIFFICULTIES = ("easy", "medium", "hard")
+_CLUES_BY_DIFFICULTY = {
+    "easy": 40,
+    "medium": 32,
+    "hard": 24,
+}
 
 _PUZZLES = {
     "easy": (
@@ -44,6 +51,47 @@ _PUZZLES = {
 def create_board() -> list[list[int]]:
     """Cria um tabuleiro 9x9 vazio, representado por zeros."""
     return [[0 for _ in range(BOARD_SIZE)] for _ in range(BOARD_SIZE)]
+
+
+def generate_board(difficulty: str, rng: Random | None = None) -> list[list[int]]:
+    """Gera um tabuleiro aleatório com solução válida na dificuldade escolhida."""
+    if difficulty not in DIFFICULTIES:
+        raise ValueError(f"Dificuldade inválida: {difficulty}")
+
+    random_source = rng if rng is not None else Random()
+    board = create_board()
+
+    def fill_board() -> bool:
+        for row in range(BOARD_SIZE):
+            for column in range(BOARD_SIZE):
+                if board[row][column] != 0:
+                    continue
+
+                numbers = list(range(1, BOARD_SIZE + 1))
+                random_source.shuffle(numbers)
+                for number in numbers:
+                    if is_valid_move(board, row, column, number):
+                        board[row][column] = number
+                        if fill_board():
+                            return True
+                        board[row][column] = 0
+                return False
+        return True
+
+    if not fill_board():
+        raise RuntimeError("Não foi possível gerar uma solução de Sudoku.")
+
+    positions = [
+        (row, column)
+        for row in range(BOARD_SIZE)
+        for column in range(BOARD_SIZE)
+    ]
+    random_source.shuffle(positions)
+    cells_to_remove = BOARD_SIZE * BOARD_SIZE - _CLUES_BY_DIFFICULTY[difficulty]
+    for row, column in positions[:cells_to_remove]:
+        board[row][column] = 0
+
+    return board
 
 
 def load_board(difficulty: str) -> list[list[int]]:

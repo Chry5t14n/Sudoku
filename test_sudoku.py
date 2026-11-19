@@ -1,10 +1,12 @@
 import unittest
+from random import Random
 
 from sudoku import (
     DIFFICULTIES,
     BOARD_SIZE,
     apply_move,
     create_board,
+    generate_board,
     get_fixed_cells,
     is_valid_move,
     is_winning_board,
@@ -86,6 +88,68 @@ class TestLoadBoard(unittest.TestCase):
     def test_rejects_unknown_difficulty(self):
         with self.assertRaises(ValueError):
             load_board("expert")
+
+
+class TestGenerateBoard(unittest.TestCase):
+    def test_generates_valid_board_with_difficulty_dependent_clue_count(self):
+        expected_clues = {"easy": 40, "medium": 32, "hard": 24}
+
+        for difficulty, clue_count in expected_clues.items():
+            with self.subTest(difficulty=difficulty):
+                board = generate_board(difficulty, Random(42))
+
+                self.assertEqual(sum(value != 0 for row in board for value in row), clue_count)
+                self.assertTrue(self._is_valid_partial_board(board))
+                self.assertTrue(self._can_solve(board))
+
+    def test_seeded_generators_create_different_games(self):
+        first_board = generate_board("easy", Random(1))
+        second_board = generate_board("easy", Random(2))
+
+        self.assertNotEqual(first_board, second_board)
+
+    def test_rejects_unknown_difficulty(self):
+        with self.assertRaises(ValueError):
+            generate_board("expert")
+
+    @staticmethod
+    def _is_valid_partial_board(board):
+        expected = set(range(1, BOARD_SIZE + 1))
+        for row in board:
+            values = [value for value in row if value]
+            if any(value not in expected for value in values) or len(values) != len(set(values)):
+                return False
+        for column in range(BOARD_SIZE):
+            values = [board[row][column] for row in range(BOARD_SIZE) if board[row][column]]
+            if len(values) != len(set(values)):
+                return False
+        for box_row in range(0, BOARD_SIZE, 3):
+            for box_column in range(0, BOARD_SIZE, 3):
+                values = [
+                    board[row][column]
+                    for row in range(box_row, box_row + 3)
+                    for column in range(box_column, box_column + 3)
+                    if board[row][column]
+                ]
+                if len(values) != len(set(values)):
+                    return False
+        return True
+
+    @staticmethod
+    def _can_solve(board):
+        for row in range(BOARD_SIZE):
+            for column in range(BOARD_SIZE):
+                if board[row][column] != 0:
+                    continue
+                for number in range(1, BOARD_SIZE + 1):
+                    if is_valid_move(board, row, column, number):
+                        board[row][column] = number
+                        if TestGenerateBoard._can_solve(board):
+                            board[row][column] = 0
+                            return True
+                        board[row][column] = 0
+                return False
+        return True
 
 
 class TestPlayerInput(unittest.TestCase):

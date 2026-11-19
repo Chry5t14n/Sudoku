@@ -20,7 +20,11 @@ A função `is_valid_move` valida números de `1` a `9` e impede conflitos na
 linha, coluna ou quadrante 3x3 da posição escolhida.
 
 Use `load_board("easy")`, `load_board("medium")` ou `load_board("hard")` para
-carregar um tabuleiro pré-pronto. Cada chamada retorna uma cópia independente.
+carregar um tabuleiro pré-pronto. Para gerar um novo tabuleiro aleatório com
+solução válida, use `generate_board("easy")`, `generate_board("medium")` ou
+`generate_board("hard")`. A dificuldade controla a quantidade de pistas:
+40 no fácil, 32 no médio e 24 no difícil. Cada chamada retorna um tabuleiro
+independente.
 
 ## Interface no navegador
 

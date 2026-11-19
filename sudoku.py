@@ -2,11 +2,56 @@
 
 BOARD_SIZE = 9
 BOX_SIZE = 3
+DIFFICULTIES = ("easy", "medium", "hard")
+
+_PUZZLES = {
+    "easy": (
+        (5, 3, 0, 0, 7, 0, 0, 0, 0),
+        (6, 0, 0, 1, 9, 5, 0, 0, 0),
+        (0, 9, 8, 0, 0, 0, 0, 6, 0),
+        (8, 0, 0, 0, 6, 0, 0, 0, 3),
+        (4, 0, 0, 8, 0, 3, 0, 0, 1),
+        (7, 0, 0, 0, 2, 0, 0, 0, 6),
+        (0, 6, 0, 0, 0, 0, 2, 8, 0),
+        (0, 0, 0, 4, 1, 9, 0, 0, 5),
+        (0, 0, 0, 0, 8, 0, 0, 7, 9),
+    ),
+    "medium": (
+        (5, 3, 0, 0, 7, 0, 0, 0, 0),
+        (6, 0, 0, 1, 0, 5, 0, 0, 0),
+        (0, 9, 8, 0, 0, 0, 0, 6, 0),
+        (8, 0, 0, 0, 6, 0, 0, 0, 0),
+        (4, 0, 0, 8, 0, 3, 0, 0, 1),
+        (7, 0, 0, 0, 2, 0, 0, 0, 0),
+        (0, 6, 0, 0, 0, 0, 2, 8, 0),
+        (0, 0, 0, 4, 1, 0, 0, 0, 5),
+        (0, 0, 0, 0, 8, 0, 0, 7, 9),
+    ),
+    "hard": (
+        (5, 0, 0, 0, 7, 0, 0, 0, 0),
+        (6, 0, 0, 1, 0, 0, 0, 0, 0),
+        (0, 9, 0, 0, 0, 0, 0, 6, 0),
+        (8, 0, 0, 0, 6, 0, 0, 0, 0),
+        (4, 0, 0, 0, 0, 3, 0, 0, 1),
+        (7, 0, 0, 0, 2, 0, 0, 0, 0),
+        (0, 6, 0, 0, 0, 0, 2, 0, 0),
+        (0, 0, 0, 4, 0, 0, 0, 0, 5),
+        (0, 0, 0, 0, 8, 0, 0, 7, 9),
+    ),
+}
 
 
 def create_board() -> list[list[int]]:
     """Cria um tabuleiro 9x9 vazio, representado por zeros."""
     return [[0 for _ in range(BOARD_SIZE)] for _ in range(BOARD_SIZE)]
+
+
+def load_board(difficulty: str) -> list[list[int]]:
+    """Carrega uma cópia do tabuleiro pré-pronto na dificuldade escolhida."""
+    if difficulty not in DIFFICULTIES:
+        raise ValueError(f"Dificuldade inválida: {difficulty}")
+
+    return [list(row) for row in _PUZZLES[difficulty]]
 
 
 def is_valid_move(board: list[list[int]], row: int, column: int, number: int) -> bool:

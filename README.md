@@ -13,6 +13,8 @@ python sudoku.py
 As casas vazias são representadas internamente por `0` e exibidas como `.`.
 Informe `linha coluna número` usando valores de `1` a `9`. Digite `sair` para
 encerrar. Os números do tabuleiro inicial não podem ser alterados.
+Após cada jogada, o programa verifica se o tabuleiro foi completado
+corretamente e exibe uma mensagem de parabéns ao vencer.
 
 A função `is_valid_move` valida números de `1` a `9` e impede conflitos na
 linha, coluna ou quadrante 3x3 da posição escolhida.

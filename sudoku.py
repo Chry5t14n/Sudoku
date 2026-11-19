@@ -86,6 +86,37 @@ def is_valid_move(board: list[list[int]], row: int, column: int, number: int) ->
     )
 
 
+def is_winning_board(board: list[list[int]]) -> bool:
+    """Verifica se o tabuleiro está completo e sem conflitos."""
+    expected_values = set(range(1, BOARD_SIZE + 1))
+
+    if any(
+        len(row) != BOARD_SIZE or any(value not in expected_values for value in row)
+        for row in board
+    ) or len(board) != BOARD_SIZE:
+        return False
+
+    if any(set(row) != expected_values for row in board):
+        return False
+
+    if any(
+        {board[row][column] for row in range(BOARD_SIZE)} != expected_values
+        for column in range(BOARD_SIZE)
+    ):
+        return False
+
+    return all(
+        {
+            board[row][column]
+            for row in range(box_start_row, box_start_row + BOX_SIZE)
+            for column in range(box_start_column, box_start_column + BOX_SIZE)
+        }
+        == expected_values
+        for box_start_row in range(0, BOARD_SIZE, BOX_SIZE)
+        for box_start_column in range(0, BOARD_SIZE, BOX_SIZE)
+    )
+
+
 def apply_move(
     board: list[list[int]],
     fixed_cells: set[tuple[int, int]],
@@ -148,6 +179,9 @@ def play_game(board: list[list[int]], input_fn=input, output_fn=print) -> None:
         display_board(board, output_fn)
         try:
             move = read_move(input_fn)
+        except EOFError:
+            output_fn("Jogo encerrado.")
+            return
         except ValueError as error:
             output_fn(f"Entrada inválida: {error}")
             continue
@@ -161,6 +195,9 @@ def play_game(board: list[list[int]], input_fn=input, output_fn=print) -> None:
             output_fn("Essa posição é fixa e não pode ser alterada.")
         elif apply_move(board, fixed_cells, row, column, number):
             output_fn("Jogada aplicada.")
+            if is_winning_board(board):
+                output_fn("Parabéns! Você completou o Sudoku!")
+                return
         else:
             output_fn("Jogada inválida.")
 

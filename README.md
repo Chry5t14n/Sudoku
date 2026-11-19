@@ -4,7 +4,7 @@ Jogo de Sudoku desenvolvido com apoio de IA.
 
 ## Executar
 
-O jogo carrega um tabuleiro fácil e permite inserir jogadas pelo terminal:
+O jogo inicia com um tabuleiro fácil aleatório e permite inserir jogadas pelo terminal:
 
 ```bash
 python sudoku.py
@@ -24,7 +24,8 @@ carregar um tabuleiro pré-pronto. Para gerar um novo tabuleiro aleatório com
 solução válida, use `generate_board("easy")`, `generate_board("medium")` ou
 `generate_board("hard")`. A dificuldade controla a quantidade de pistas:
 40 no fácil, 32 no médio e 24 no difícil. Cada chamada retorna um tabuleiro
-independente.
+independente. No navegador, os botões `Novo jogo` e a troca de dificuldade
+geram uma nova partida e limpam o estado anterior.
 
 ## Interface no navegador
 
